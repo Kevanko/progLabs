@@ -88,11 +88,16 @@ int int_vector_push_back(IntVector* v, int item)
     if (v == NULL) {
         return -1;
     }
+
     if (v->size >= v->capacity) {
-        if (!int_vector_reserve(v, v->capacity * 2)) {
+        int* new_data = (int*)realloc(v->data, v->size * 2 * sizeof(int));
+        if (new_data == NULL) {
             return -1;
         }
+        v->data = new_data;
+        v->capacity = v->size * 2;
     }
+
     v->data[v->size] = item;
     v->size++;
     return 0;
@@ -128,15 +133,17 @@ int int_vector_resize(IntVector* v, size_t new_size)
     }
 
     if (new_size > v->capacity) {
-        if (int_vector_reserve(v, new_size) == -1) {
+        if (!int_vector_reserve(v, new_size)) {
             return -1;
         }
         for (size_t i = v->size; i < new_size; i++) {
             v->data[i] = 0;
         }
     } else if (new_size < v->size) {
-        v->size = new_size;
+        for (size_t i = v->size; i > new_size; i--) {
+            v->data[i] = 0;
+        }
     }
-
+    v->size = new_size;
     return 0;
 }
