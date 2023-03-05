@@ -1,97 +1,96 @@
 #include "IntVector.h"
 
-// Создание нового вектора c начальной вместимостью
+// Создание нового динамического массива целых чисел заданной начальной
+// вместимостью
 IntVector* int_vector_new(size_t initial_capacity)
 {
-    IntVector* vector = (IntVector*)malloc(sizeof(IntVector));
-    if (vector == NULL) {
+    IntVector* v = (IntVector*)malloc(sizeof(IntVector));
+    if (!v) {
         return NULL;
     }
-
-    vector->data = (int*)malloc(sizeof(int) * initial_capacity);
-    if (vector->data == NULL) {
-        free(vector);
+    v->data = (int*)malloc(sizeof(int) * initial_capacity);
+    if (!v->data) {
+        free(v);
         return NULL;
     }
-
-    vector->size = 0;
-    vector->capacity = initial_capacity;
-
-    return vector;
+    v->capacity = initial_capacity;
+    v->size = 0;
+    return v;
 }
 
-// Получение элемента по индексу
+// Создание копии динамического массива целых чисел
+IntVector* int_vector_copy(const IntVector* v)
+{
+    if (!v) {
+        return NULL;
+    }
+    IntVector* v2 = int_vector_new(v->capacity);
+    if (!v2) {
+        return NULL;
+    }
+    for (int i = 0; i < v->size; i++) {
+        v2->data[i] = v->data[i];
+        v2->size++;
+    }
+    return v2;
+}
+
+// Освобождение памяти, занятой динамическим массивом целых чисел
+void int_vector_free(IntVector* v)
+{
+    if (v->data) {
+        free(v->data);
+    }
+    if (v) {
+        free(v);
+    }
+}
+
+// Получение элемента динамического массива целых чисел по индексу
 int int_vector_get_item(const IntVector* v, size_t index)
 {
+    if (!v) {
+        return 0;
+    }
     if (index < v->size) {
         return v->data[index];
     }
     return 0;
 }
-// Изменение элемента вектора по индексу
+
+// Изменение элемента динамического массива целых чисел по индексу
 void int_vector_set_item(IntVector* v, size_t index, int item)
 {
+    if (!v) {
+        return;
+    }
+
     if (index < v->size) {
         v->data[index] = item;
-    }
-}
-
-// Создание копии вектора
-IntVector* int_vector_copy(const IntVector* v)
-{
-    IntVector* copy = int_vector_new(v->capacity);
-    if (!copy) {
-        return NULL;
-    }
-    for (size_t i = 0; i < v->size; i++) {
-        copy->data[i] = v->data[i];
-    }
-    copy->size = v->size;
-    return copy;
-}
-
-// Освобождение памяти, занятой вектором
-void int_vector_free(IntVector* v)
-{
-    if (v != NULL) {
-        free(v->data);
-        free(v);
     }
 }
 
 // Получение текущей емкости вектора
 size_t int_vector_get_capacity(const IntVector* v)
 {
-    return v->capacity;
-}
-// Увеличение емкости вектора до заданного
-int int_vector_reserve(IntVector* v, size_t new_capacity)
-{
-    if (new_capacity <= v->capacity) {
+    if (!v) {
         return 0;
     }
-
-    int* new_data = (int*)realloc(v->data, new_capacity * sizeof(int));
-
-    if (new_data == NULL) {
-        return -1;
-    }
-
-    v->data = new_data;
-    v->capacity = new_capacity;
-
-    return 0;
+    return v->capacity;
 }
 // Добавление элемента в конец вектора
 int int_vector_push_back(IntVector* v, int item)
 {
-    if (v == NULL) {
+    if (!v) {
         return -1;
     }
-    if (v->size >= v->capacity) {
-        if (!int_vector_reserve(v, v->capacity * 2)) {
+    if (v->size == v->capacity) {
+        int* new_data = (int*)realloc(v->data, v->capacity * sizeof(int) * 2);
+        if (!new_data) {
             return -1;
         }
+        v->data = new_data;
+        v->capacity *= 2;
     }
     v->data[v->size] = item;
     v->size++;
@@ -100,6 +99,9 @@ int int_vector_push_back(IntVector* v, int item)
 // Удаление последнего элемена из вектора.
 void int_vector_pop_back(IntVector* v)
 {
+    if (!v) {
+        return;
+    }
     if (v->size > 0) {
         v->size--;
     }
@@ -107,36 +109,64 @@ void int_vector_pop_back(IntVector* v)
 // Уменьшение емкости вектора до его размера.
 int int_vector_shrink_to_fit(IntVector* v)
 {
-    if (v == NULL) {
+    if (!v || !v->size) {
         return -1;
     }
-    size_t new_capacity = v->size;
-    int* new_data = (int*)realloc(v->data, new_capacity * sizeof(int));
-    if (new_data == NULL) {
+    if (v->capacity == v->size) {
+        return 0;
+    }
+    int* new_data = (int*)realloc(v->data, v->size * sizeof(int));
+    if (!new_data) {
         return -1;
     }
+    v->capacity = v->size;
     v->data = new_data;
-    v->capacity = new_capacity;
     return 0;
 }
 
+// Увеличение емкости вектора до заданного
+int int_vector_reserve(IntVector* v, size_t new_capacity)
+{
+    if (!v || !v->data) {
+        return -1;
+    }
+    if (new_capacity <= v->capacity) {
+        return 0;
+    }
+
+    int* new_data = (int*)realloc(v->data, new_capacity * sizeof(int));
+
+    if (!new_data) {
+        return -1;
+    }
+
+    v->data = new_data;
+    v->capacity = new_capacity;
+
+    return 0;
+}
 // Изменение размера вектора до заданного
 int int_vector_resize(IntVector* v, size_t new_size)
 {
-    if (v == NULL) {
+    if (!v) {
         return -1;
     }
-
     if (new_size > v->capacity) {
-        if (int_vector_reserve(v, new_size) == -1) {
+        int* new_data = (int*)realloc(v->data, new_size * sizeof(int));
+        if (!new_data) {
             return -1;
         }
-        for (size_t i = v->size; i < new_size; i++) {
-            v->data[i] = 0;
-        }
-    } else if (new_size < v->size) {
+        v->data = new_data;
+        v->capacity = new_size;
+    } else if (v->size > new_size) {
         v->size = new_size;
+    }
+
+    for (; v->size < new_size;) {
+        v->data[v->size] = 0;
+        v->size++;
     }
 
     return 0;
 }
+
