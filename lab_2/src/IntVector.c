@@ -38,10 +38,8 @@ IntVector* int_vector_copy(const IntVector* v)
 // Освобождение памяти, занятой динамическим массивом целых чисел
 void int_vector_free(IntVector* v)
 {
-    if (v->data) {
-        free(v->data);
-    }
     if (v) {
+        free(v->data);
         free(v);
     }
 }
@@ -71,6 +69,15 @@ void int_vector_set_item(IntVector* v, size_t index, int item)
 }
 
 // Получение текущей емкости вектора
+size_t int_vector_get_size(const IntVector* v)
+{
+    if (!v) {
+        return 0;
+    }
+    return v->size;
+}
+
+// Получение текущей емкости вектора
 size_t int_vector_get_capacity(const IntVector* v)
 {
     if (!v) {
@@ -85,6 +92,9 @@ int int_vector_push_back(IntVector* v, int item)
         return -1;
     }
     if (v->size == v->capacity) {
+        if (!v->capacity) {
+            v->capacity = 1;
+        }
         int* new_data = (int*)realloc(v->data, v->capacity * sizeof(int) * 2);
         if (!new_data) {
             return -1;
@@ -116,18 +126,20 @@ int int_vector_shrink_to_fit(IntVector* v)
         return 0;
     }
     int* new_data = (int*)realloc(v->data, v->size * sizeof(int));
+
     if (!new_data) {
         return -1;
     }
-    v->capacity = v->size;
+
     v->data = new_data;
+    v->capacity = v->size;
     return 0;
 }
 
 // Увеличение емкости вектора до заданного
 int int_vector_reserve(IntVector* v, size_t new_capacity)
 {
-    if (!v || !v->data) {
+    if (!v) {
         return -1;
     }
     if (new_capacity <= v->capacity) {
@@ -158,8 +170,6 @@ int int_vector_resize(IntVector* v, size_t new_size)
         }
         v->data = new_data;
         v->capacity = new_size;
-    } else if (v->size > new_size) {
-        v->size = new_size;
     }
 
     for (; v->size < new_size;) {
@@ -169,4 +179,14 @@ int int_vector_resize(IntVector* v, size_t new_size)
 
     return 0;
 }
-
+void print_vector(IntVector* v, char* text)
+{
+    if (text) {
+        printf("%30.60s | ", text);
+    }
+    printf("size[%ld]\t| capacity[%ld]\t | {", v->size, v->capacity);
+    for (size_t i = 0; i < v->size; i++) {
+        printf("%d ", int_vector_get_item(v, i));
+    }
+    printf("}\n");
+}
