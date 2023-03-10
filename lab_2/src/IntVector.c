@@ -179,13 +179,19 @@ int int_vector_resize(IntVector* v, size_t new_size)
 
     return 0;
 }
+
 void print_vector(IntVector* v, char* text)
 {
-    if (text) {
-        printf("%30.60s | ", text);
+    static int counter = 1;
+    if (counter == 1) {
+        printf(" #\t\t\tName\t\t Size\t Capacity\t Array\n");
     }
-    printf("size[%ld]\t| capacity[%ld]\t | {", v->size, v->capacity);
-    for (size_t i = 0; i < v->size; i++) {
+    printf("%2d %30s \t| %ld\t| %ld\t | {",
+           counter++,
+           text,
+           v->size,
+           v->capacity);
+    for (size_t i = 0; i < v->size && i < 30; i++) {
         printf("%d ", int_vector_get_item(v, i));
     }
     printf("}\n");
