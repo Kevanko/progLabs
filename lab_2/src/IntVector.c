@@ -1,7 +1,6 @@
 #include "IntVector.h"
 
-// Создание нового динамического массива целых чисел заданной начальной
-// вместимостью
+// Создание нового вектора
 IntVector* int_vector_new(size_t initial_capacity)
 {
     IntVector* v = (IntVector*)malloc(sizeof(IntVector));
@@ -18,7 +17,7 @@ IntVector* int_vector_new(size_t initial_capacity)
     return v;
 }
 
-// Создание копии динамического массива целых чисел
+// Создание копии вектора
 IntVector* int_vector_copy(const IntVector* v)
 {
     if (!v) {
@@ -35,7 +34,7 @@ IntVector* int_vector_copy(const IntVector* v)
     return v2;
 }
 
-// Освобождение памяти, занятой динамическим массивом целых чисел
+// Освобождение памяти, вектором
 void int_vector_free(IntVector* v)
 {
     if (v) {
@@ -44,7 +43,7 @@ void int_vector_free(IntVector* v)
     }
 }
 
-// Получение элемента динамического массива целых чисел по индексу
+// Получение элемента вектора по индексу
 int int_vector_get_item(const IntVector* v, size_t index)
 {
     if (!v) {
@@ -56,7 +55,7 @@ int int_vector_get_item(const IntVector* v, size_t index)
     return 0;
 }
 
-// Изменение элемента динамического массива целых чисел по индексу
+// Изменение элемента вектора по индексу
 void int_vector_set_item(IntVector* v, size_t index, int item)
 {
     if (!v) {
@@ -68,7 +67,7 @@ void int_vector_set_item(IntVector* v, size_t index, int item)
     }
 }
 
-// Получение текущей емкости вектора
+// Получение текущего размера вектора
 size_t int_vector_get_size(const IntVector* v)
 {
     if (!v) {
